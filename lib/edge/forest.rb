@@ -1,6 +1,11 @@
 module Edge
   module Forest
+    # acts_as_forest models a tree/multi-tree structure.
     module ClassMethods
+      # options:
+      #
+      # * foreign_key - column name to use for parent foreign_key (default: parent_id)
+      # * order - how to order children (default: none)
       def acts_as_forest(options={})
         options.assert_valid_keys :foreign_key, :order
         
@@ -29,6 +34,15 @@ module Edge
         
         include Edge::Forest::InstanceMethods
         
+        # Finds entire forest and preloads all associations. It can be used at
+        # the end of an ActiveRecord finder chain.
+        #
+        # Example:
+        #    # loads all locations
+        #    Location.find_forest
+        #
+        #    # loads all nodes with matching names and all there descendants
+        #    Category.where(:name => %w{clothing books electronics}).find_forest
         def find_forest
           all_nodes = Arel::Table.new(:all_nodes)
               
@@ -72,6 +86,10 @@ module Edge
           top_level_records
         end
         
+        # Finds an a tree or trees by id.
+        #
+        # If any requested ids are not found it raises
+        # ActiveRecord::RecordNotFound.
         def find_tree(id_or_ids)
           trees = where(:id => id_or_ids).find_forest
           if id_or_ids.kind_of?(Array)
@@ -86,18 +104,23 @@ module Edge
     end
     
     module InstanceMethods
+      # Returns the root of this node. If this node is root returns self.
       def root
         parent ? parent.root : self
       end
       
+      # Returns true is this node is a root or false otherwise
       def root?
         !parent_id
       end
       
+      # Returns all sibling nodes (nodes that have the same parent). If this
+      # node is a root node it returns an empty array.      
       def siblings
         parent ? parent.children - [self] : []
       end
       
+      # Returns all ancestors ordered by nearest ancestors first.      
       def ancestors
         _ancestors = []
         node = self
@@ -108,6 +131,7 @@ module Edge
         _ancestors
       end
       
+      # Returns all descendants
       def descendants
         if children.present?
           children + children.map(&:descendants).flatten

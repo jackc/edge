@@ -5,7 +5,7 @@ Gem::Specification.new do |gem|
   gem.authors       = ["Jack Christensen"]
   gem.email         = ["jack@jackchristensen.com"]
   gem.description   = %q{Graph functionality for ActiveRecord}
-  gem.summary       = %q{Graph functionality for ActiveRecord}
+  gem.summary       = %q{Graph functionality for ActiveRecord. Provides tree/forest modeling structure that can load entire trees in a single query.}
   gem.homepage      = "https://github.com/JackC/edge"
 
   gem.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
