@@ -1,8 +1,7 @@
 require 'spec_helper'
 
 class Location < ActiveRecord::Base
-  include Edge::Forest
-  forest :order => "name"
+  acts_as_forest :order => "name"
 end
 
 describe "Edge::Forest" do
@@ -163,7 +162,5 @@ describe "Edge::Forest" do
       tree = forest.find { |l| l.id == usa.id }
       tree.children.should == [alabama, illinois, indiana]
     end
-    
   end
-  
 end

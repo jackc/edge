@@ -1,9 +1,7 @@
 module Edge
   module Forest
-    extend ActiveSupport::Concern
-    
     module ClassMethods
-      def forest(options={})
+      def acts_as_forest(options={})
         options.assert_valid_keys :foreign_key, :order
         
         class_attribute :forest_foreign_key
@@ -28,6 +26,8 @@ module Edge
         has_many :children, children_options
         
         scope :root, where(forest_foreign_key => nil)
+        
+        include Edge::Forest::InstanceMethods
         
         def find_forest
           all_nodes = Arel::Table.new(:all_nodes)
@@ -74,34 +74,38 @@ module Edge
       end      
     end
     
-    def root
-      parent ? parent.root : self
-    end
-    
-    def root?
-      !parent_id
-    end
-    
-    def siblings
-      parent ? parent.children - [self] : []
-    end
-    
-    def ancestors
-      _ancestors = []
-      node = self
-      while(node = node.parent)
-        _ancestors.push(node)
+    module InstanceMethods
+      def root
+        parent ? parent.root : self
       end
       
-      _ancestors
-    end
-    
-    def descendants
-      if children.present?
-        children + children.map(&:descendants).flatten
-      else
-        []
-      end    
+      def root?
+        !parent_id
+      end
+      
+      def siblings
+        parent ? parent.children - [self] : []
+      end
+      
+      def ancestors
+        _ancestors = []
+        node = self
+        while(node = node.parent)
+          _ancestors.push(node)
+        end
+        
+        _ancestors
+      end
+      
+      def descendants
+        if children.present?
+          children + children.map(&:descendants).flatten
+        else
+          []
+        end    
+      end
     end
   end
 end
+
+ActiveRecord::Base.extend Edge::Forest::ClassMethods
