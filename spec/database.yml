@@ -1,0 +1,4 @@
+test:
+  adapter: postgresql
+  encoding: unicode
+  database: edge_test
