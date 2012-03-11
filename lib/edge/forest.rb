@@ -71,6 +71,17 @@ module Edge
           
           top_level_records
         end
+        
+        def find_tree(id_or_ids)
+          trees = where(:id => id_or_ids).find_forest
+          if id_or_ids.kind_of?(Array)
+            raise ActiveRecord::RecordNotFound unless trees.size == id_or_ids.size
+            trees
+          else
+            raise ActiveRecord::RecordNotFound if trees.empty?
+            trees.first
+          end
+        end
       end      
     end
     

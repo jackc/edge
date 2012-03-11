@@ -163,4 +163,26 @@ describe "Edge::Forest" do
       tree.children.should == [alabama, illinois, indiana]
     end
   end
+  
+  describe "find_tree" do
+    it "finds by id" do
+      tree = Location.find_tree usa.id
+      tree.should == usa
+    end
+    
+    it "finds multiple trees by id" do
+      trees = Location.find_tree [indiana.id, illinois.id]
+      trees.should include(indiana, illinois)
+    end
+    
+    it "raises ActiveRecord::RecordNotFound when id is not found" do
+      expect{Location.find_tree -1}.to raise_error(ActiveRecord::RecordNotFound)
+    end
+    
+    it "raises ActiveRecord::RecordNotFound when not all ids are not found" do
+      expect{Location.find_tree [indiana.id, -1]}.to raise_error(ActiveRecord::RecordNotFound)
+    end
+    
+  end
+  
 end
