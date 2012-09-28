@@ -162,6 +162,16 @@ describe "Edge::Forest" do
       tree = forest.find { |l| l.id == usa.id }
       tree.children.should == [alabama, illinois, indiana]
     end
+
+    context "with an infinite loop" do
+      before do
+        usa.update_attribute(:parent, chicago)
+      end
+
+      it "does not re-loop" do
+        Location.find_forest
+      end
+    end
   end
 
   describe "find_tree" do
