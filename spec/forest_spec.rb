@@ -195,4 +195,21 @@ describe "Edge::Forest" do
 
   end
 
+  describe "with_descendants" do
+    context "unscoped" do
+      it "returns all records" do
+        Location.with_descendants.all.should =~ Location.all
+      end
+    end
+
+    context "scoped" do
+      it "returns a new scope that includes previously scoped records and their descendants" do
+        Location.where(id: canada.id).with_descendants.all.should =~ [canada, british_columbia]
+      end
+
+      it "is not commutative" do
+        Location.with_descendants.where(id: canada.id).all.should == [canada]
+      end
+    end
+  end
 end
