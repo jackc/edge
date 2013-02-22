@@ -32,17 +32,23 @@ acts_as_forest.
     class Location < ActiveRecord::Base
       acts_as_forest :order => "name"
     end
-    
+
     usa = Location.create! :name => "USA"
     illinois = usa.children.create! :name => "Illinois"
     chicago = illinois.children.create! :name => "Chicago"
     indiana = usa.children.create! :name => "Indiana"
     canada = Location.create! :name => "Canada"
     british_columbia = canada.children.create! :name => "British Columbia"
-    
+
     Location.root.all # [usa, canada]
     Location.find_forest # [usa, canada] with all children and parents preloaded
     Location.find_tree usa.id # load a single tree.
+
+It also provides the with_descendents scope to get all currently selected
+nodes and all there descendents. It can be chained after where scopes, but
+must not be used after any other type of scope.
+
+    Location.where(name: "Illinois").with_descendents.all # [illinois, chicago]
 
 ## Benchmarks
 
@@ -58,7 +64,7 @@ size of payload per node.
         -p, --payload NUM                Characters of payload per node
 
 Even on slower machines entire trees can be loaded quickly.
-        
+
     jack@moya:~/work/edge$ ruby -I lib -I bench bench/forest_find.rb
     Trees: 50
     Depth: 3
@@ -71,7 +77,7 @@ Even on slower machines entire trees can be loaded quickly.
     Load one tree 100 times                    0.830000   0.040000   0.870000 (  0.984642)
 
 ### Running the benchmarks
-    
+
 1. Create a database such as edge_bench.
 2. Configure bench/database.yml to connect to it.
 3. Load bench/database_structure.sql into your bench database.
