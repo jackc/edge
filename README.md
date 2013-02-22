@@ -45,7 +45,7 @@ acts_as_forest.
     Location.find_tree usa.id # load a single tree.
 
 It also provides the with_descendents scope to get all currently selected
-nodes and all there descendents. It can be chained after where scopes, but
+nodes and all their descendents. It can be chained after where scopes, but
 must not be used after any other type of scope.
 
     Location.where(name: "Illinois").with_descendents.all # [illinois, chicago]
