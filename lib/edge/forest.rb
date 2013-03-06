@@ -1,7 +1,7 @@
 module Edge
   module Forest
     # acts_as_forest models a tree/multi-tree structure.
-    module ClassMethods
+    module ActsAsForest
       # options:
       #
       # * foreign_key - column name to use for parent foreign_key (default: parent_id)
@@ -33,86 +33,89 @@ module Edge
         scope :root, where(forest_foreign_key => nil)
 
         include Edge::Forest::InstanceMethods
+        extend Edge::Forest::ClassMethods
+      end
+    end
 
-        # Finds entire forest and preloads all associations. It can be used at
-        # the end of an ActiveRecord finder chain.
-        #
-        # Example:
-        #    # loads all locations
-        #    Location.find_forest
-        #
-        #    # loads all nodes with matching names and all there descendants
-        #    Category.where(:name => %w{clothing books electronics}).find_forest
-        def find_forest
-          manager = recursive_manager.project(Arel.star)
-          manager.order(forest_order) if forest_order
+    module ClassMethods
+      # Finds entire forest and preloads all associations. It can be used at
+      # the end of an ActiveRecord finder chain.
+      #
+      # Example:
+      #    # loads all locations
+      #    Location.find_forest
+      #
+      #    # loads all nodes with matching names and all there descendants
+      #    Category.where(:name => %w{clothing books electronics}).find_forest
+      def find_forest
+        manager = recursive_manager.project(Arel.star)
+        manager.order(forest_order) if forest_order
 
-          records = find_by_sql manager.to_sql
+        records = find_by_sql manager.to_sql
 
-          records_by_id = records.each_with_object({}) { |r, h| h[r.id] = r }
+        records_by_id = records.each_with_object({}) { |r, h| h[r.id] = r }
 
-          # Set all children associations to an empty array
-          records.each do |r|
-            children_association = r.association(:children)
-            children_association.target = []
-          end
-
-          top_level_records = []
-
-          records.each do |r|
-            parent = records_by_id[r[forest_foreign_key]]
-            if parent
-              r.association(:parent).target = parent
-              parent.association(:children).target.push(r)
-            else
-              top_level_records.push(r)
-            end
-          end
-
-          top_level_records
+        # Set all children associations to an empty array
+        records.each do |r|
+          children_association = r.association(:children)
+          children_association.target = []
         end
 
-        # Finds an a tree or trees by id.
-        #
-        # If any requested ids are not found it raises
-        # ActiveRecord::RecordNotFound.
-        def find_tree(id_or_ids)
-          trees = where(:id => id_or_ids).find_forest
-          if id_or_ids.kind_of?(Array)
-            raise ActiveRecord::RecordNotFound unless trees.size == id_or_ids.size
-            trees
+        top_level_records = []
+
+        records.each do |r|
+          parent = records_by_id[r[forest_foreign_key]]
+          if parent
+            r.association(:parent).target = parent
+            parent.association(:children).target.push(r)
           else
-            raise ActiveRecord::RecordNotFound if trees.empty?
-            trees.first
+            top_level_records.push(r)
           end
         end
 
-        # Returns a new scope that includes previously scoped records and their descendants by subsuming the previous scope into a subquery
-        #
-        # Only where scopes can precede this in a scope chain
-        def with_descendants
-          manager = recursive_manager.project('id')
-          unscoped.where(id: manager)
+        top_level_records
+      end
+
+      # Finds an a tree or trees by id.
+      #
+      # If any requested ids are not found it raises
+      # ActiveRecord::RecordNotFound.
+      def find_tree(id_or_ids)
+        trees = where(:id => id_or_ids).find_forest
+        if id_or_ids.kind_of?(Array)
+          raise ActiveRecord::RecordNotFound unless trees.size == id_or_ids.size
+          trees
+        else
+          raise ActiveRecord::RecordNotFound if trees.empty?
+          trees.first
         end
+      end
 
-        private
-        def recursive_manager
-          all_nodes = Arel::Table.new(:all_nodes)
+      # Returns a new scope that includes previously scoped records and their descendants by subsuming the previous scope into a subquery
+      #
+      # Only where scopes can precede this in a scope chain
+      def with_descendants
+        manager = recursive_manager.project('id')
+        unscoped.where(id: manager)
+      end
 
-          original_term = (current_scope || scoped).arel
-          iterated_term = Arel::SelectManager.new Arel::Table.engine
-          iterated_term.from(arel_table)
-            .project(arel_table.columns)
-            .join(all_nodes)
-            .on(arel_table[forest_foreign_key].eq all_nodes[:id])
+      private
+      def recursive_manager
+        all_nodes = Arel::Table.new(:all_nodes)
 
-          union = original_term.union(iterated_term)
+        original_term = (current_scope || scoped).arel
+        iterated_term = Arel::SelectManager.new Arel::Table.engine
+        iterated_term.from(arel_table)
+          .project(arel_table.columns)
+          .join(all_nodes)
+          .on(arel_table[forest_foreign_key].eq all_nodes[:id])
 
-          as_statement = Arel::Nodes::As.new all_nodes, union
+        union = original_term.union(iterated_term)
 
-          manager = Arel::SelectManager.new Arel::Table.engine
-          manager.with(:recursive, as_statement).from(all_nodes)
-        end
+        as_statement = Arel::Nodes::As.new all_nodes, union
+
+        manager = Arel::SelectManager.new Arel::Table.engine
+        manager.with(:recursive, as_statement).from(all_nodes)
       end
     end
 
@@ -156,4 +159,4 @@ module Edge
   end
 end
 
-ActiveRecord::Base.extend Edge::Forest::ClassMethods
+ActiveRecord::Base.extend Edge::Forest::ActsAsForest
