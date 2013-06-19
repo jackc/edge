@@ -22,15 +22,13 @@ module Edge
 
         belongs_to :parent, common_options
 
-        children_options = if forest_order
-          common_options.merge(:order => forest_order)
+        if forest_order
+          has_many :children, -> { order(forest_order) }, common_options
         else
-          common_options
+          has_many :children, common_options
         end
 
-        has_many :children, children_options
-
-        scope :root, where(forest_foreign_key => nil)
+        scope :root, -> { where(forest_foreign_key => nil) }
 
         include Edge::Forest::InstanceMethods
         extend Edge::Forest::ClassMethods
@@ -96,17 +94,17 @@ module Edge
       # Only where scopes can precede this in a scope chain
       def with_descendants
         manager = recursive_manager.project('id')
-        unscoped.where(id: manager)
+        unscoped.where("id in (#{manager.to_sql})")
       end
 
       private
       def recursive_manager
         all_nodes = Arel::Table.new(:all_nodes)
 
-        original_term = (current_scope || scoped).arel
+        original_term = (current_scope || all).arel
         iterated_term = Arel::SelectManager.new Arel::Table.engine
         iterated_term.from(arel_table)
-          .project(arel_table.columns)
+          .project(columns.map { |c| arel_table[c.name.to_sym] })
           .join(all_nodes)
           .on(arel_table[forest_foreign_key].eq all_nodes[:id])
 

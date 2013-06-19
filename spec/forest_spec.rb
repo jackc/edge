@@ -131,7 +131,7 @@ describe "Edge::Forest" do
 
   describe "root scope" do
     it "returns only root nodes" do
-      Location.root.all.should include(usa, canada)
+      Location.root.should include(usa, canada)
     end
   end
 
@@ -139,13 +139,11 @@ describe "Edge::Forest" do
     it "preloads all parents and children" do
       forest = Location.find_forest
 
-      Location.with_scope(
-        :find => Location.where("purposely fail if any Location find happens here")
-      ) do
+      Location.where("purposely fail if any Location find happens here").scoping do
         forest.each do |tree|
           tree.descendants.each do |node|
             node.parent.should be
-            node.children.should be_kind_of(Array)
+            node.children.should be_kind_of(ActiveRecord::Associations::CollectionProxy)
           end
         end
       end
@@ -198,17 +196,17 @@ describe "Edge::Forest" do
   describe "with_descendants" do
     context "unscoped" do
       it "returns all records" do
-        Location.with_descendants.all.should =~ Location.all
+        Location.with_descendants.to_a.should =~ Location.all
       end
     end
 
     context "scoped" do
       it "returns a new scope that includes previously scoped records and their descendants" do
-        Location.where(id: canada.id).with_descendants.all.should =~ [canada, british_columbia]
+        Location.where(id: canada.id).with_descendants.to_a.should =~ [canada, british_columbia]
       end
 
       it "is not commutative" do
-        Location.with_descendants.where(id: canada.id).all.should == [canada]
+        Location.with_descendants.where(id: canada.id).to_a.should == [canada]
       end
     end
   end
