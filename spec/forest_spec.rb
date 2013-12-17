@@ -4,6 +4,8 @@ class Location < ActiveRecord::Base
   acts_as_forest :order => "name"
 end
 
+Location.delete_all
+
 describe "Edge::Forest" do
   let!(:usa) { Location.create! :name => "USA" }
   let!(:illinois) { Location.create! :parent => usa, :name => "Illinois" }

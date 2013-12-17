@@ -93,7 +93,7 @@ module Edge
       #
       # Only where scopes can precede this in a scope chain
       def with_descendants
-        manager = recursive_manager.project('id')
+        manager = recursive_manager.project(arel_table[:id])
         unscoped.where("id in (#{manager.to_sql})")
       end
 
@@ -101,10 +101,10 @@ module Edge
       def recursive_manager
         all_nodes = Arel::Table.new(:all_nodes)
 
-        original_term = (current_scope || all).arel
+        original_term = (current_scope || all).select(primary_key, forest_foreign_key).arel
         iterated_term = Arel::SelectManager.new Arel::Table.engine
         iterated_term.from(arel_table)
-          .project(columns.map { |c| arel_table[c.name.to_sym] })
+          .project([arel_table[primary_key.to_sym], arel_table[forest_foreign_key.to_sym]])
           .join(all_nodes)
           .on(arel_table[forest_foreign_key].eq all_nodes[:id])
 
@@ -112,8 +112,11 @@ module Edge
 
         as_statement = Arel::Nodes::As.new all_nodes, union
 
-        manager = Arel::SelectManager.new Arel::Table.engine
-        manager.with(:recursive, as_statement).from(all_nodes)
+        manager = Arel::SelectManager.new(Arel::Table.engine)
+          .with(:recursive, as_statement)
+          .from(all_nodes)
+          .join(arel_table)
+          .on(all_nodes[:id].eq(arel_table[:id]))
       end
     end
 

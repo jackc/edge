@@ -14,11 +14,12 @@ Gem::Specification.new do |gem|
   gem.name          = "edge"
   gem.require_paths = ["lib"]
   gem.version       = Edge::VERSION
-  
+
   gem.add_dependency 'activerecord', ">= 3.2.0"
-  
+
   gem.add_development_dependency 'pg'
+  gem.add_development_dependency 'pry'
   gem.add_development_dependency 'rspec', "~> 2.8.0"
   gem.add_development_dependency 'guard', ">= 0.10.0"
-  gem.add_development_dependency 'guard-rspec', ">= 0.6.0"   
+  gem.add_development_dependency 'guard-rspec', ">= 0.6.0"
 end
