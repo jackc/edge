@@ -94,7 +94,7 @@ module Edge
       # Only where scopes can precede this in a scope chain
       def with_descendants
         manager = recursive_manager.project(arel_table[:id])
-        unscoped.where("id in (#{manager.to_sql})")
+        unscoped.where("#{table_name}.id in (#{manager.to_sql})")
       end
 
       private
