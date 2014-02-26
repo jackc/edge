@@ -20,13 +20,14 @@ module Edge
           :foreign_key => forest_foreign_key
         }
 
-        belongs_to :parent, common_options
+        belongs_to :parent, common_options.merge(inverse_of: :children)
 
         if forest_order
-          has_many :children, -> { order(forest_order) }, common_options
+          has_many :children, -> { order(forest_order) }, common_options.merge(inverse_of: :parent)
         else
-          has_many :children, common_options
+          has_many :children, common_options.merge(inverse_of: :parent)
         end
+
 
         scope :root, -> { where(forest_foreign_key => nil) }
 
