@@ -152,7 +152,7 @@ module Edge
       # Returns all descendants
       def descendants
         if children.present?
-          children + children.map(&:descendants).flatten
+          children + children.flat_map(&:descendants)
         else
           []
         end
