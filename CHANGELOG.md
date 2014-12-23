@@ -1,3 +1,9 @@
+# 0.4.0 (December 23, 2014)
+
+* Fix failure with bind_values
+* Fix README typos (y-yagi)
+* Improve performance by using flat_map (TheKidCoder)
+
 # 0.3.2 (March 1, 2014)
 
 * Set inverse_of on parent and children associations (Systho)
