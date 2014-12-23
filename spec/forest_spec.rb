@@ -17,19 +17,19 @@ describe "Edge::Forest" do
   describe "root?" do
     context "of root node" do
       it "should be true" do
-        usa.root?.should == true
+        expect(usa.root?).to eq true
       end
     end
 
     context "of child node" do
       it "should be false" do
-        illinois.root?.should == false
+        expect(illinois.root?).to eq false
       end
     end
 
     context "of leaf node" do
       it "should be root node" do
-        chicago.root?.should == false
+        expect(chicago.root?).to eq false
       end
     end
   end
@@ -37,19 +37,19 @@ describe "Edge::Forest" do
   describe "root" do
     context "of root node" do
       it "should be self" do
-        usa.root.should == usa
+        expect(usa.root).to eq usa
       end
     end
 
     context "of child node" do
       it "should be root node" do
-        illinois.root.should == usa
+        expect(illinois.root).to eq usa
       end
     end
 
     context "of leaf node" do
       it "should be root node" do
-        chicago.root.should == usa
+        expect(chicago.root).to eq usa
       end
     end
   end
@@ -57,19 +57,19 @@ describe "Edge::Forest" do
   describe "parent" do
     context "of root node" do
       it "should be nil" do
-        usa.parent.should == nil
+        expect(usa.parent).to eq nil
       end
     end
 
     context "of child node" do
       it "should be parent" do
-        illinois.parent.should == usa
+        expect(illinois.parent).to eq usa
       end
     end
 
     context "of leaf node" do
       it "should be parent" do
-        chicago.parent.should == illinois
+        expect(chicago.parent).to eq illinois
       end
     end
   end
@@ -77,13 +77,13 @@ describe "Edge::Forest" do
   describe "ancestors" do
     context "of root node" do
       it "should be empty" do
-        usa.ancestors.should be_empty
+        expect(usa.ancestors).to be_empty
       end
     end
 
     context "of leaf node" do
       it "should be ancestors ordered by ascending distance" do
-        chicago.ancestors.should == [illinois, usa]
+        expect(chicago.ancestors).to eq [illinois, usa]
       end
     end
   end
@@ -91,49 +91,49 @@ describe "Edge::Forest" do
   describe "siblings" do
     context "of root node" do
       it "should be empty" do
-        usa.siblings.should be_empty
+        expect(usa.siblings).to be_empty
       end
     end
 
     context "of child node" do
       it "should be other children of parent" do
-        illinois.siblings.should include(indiana)
+        expect(illinois.siblings).to include(indiana)
       end
     end
   end
 
   describe "children" do
     it "should be children" do
-      usa.children.should include(illinois, indiana)
+      expect(usa.children).to include(illinois, indiana)
     end
 
     it "should be ordered" do
       alabama = Location.create! :parent => usa, :name => "Alabama"
-      usa.children.should == [alabama, illinois, indiana]
+      expect(usa.children).to eq [alabama, illinois, indiana]
     end
 
     context "of leaf" do
       it "should be empty" do
-        chicago.children.should be_empty
+        expect(chicago.children).to be_empty
       end
     end
   end
 
   describe "descendants" do
     it "should be all descendants" do
-      usa.descendants.should include(illinois, indiana, chicago)
+      expect(usa.descendants).to include(illinois, indiana, chicago)
     end
 
     context "of leaf" do
       it "should be empty" do
-        chicago.descendants.should be_empty
+        expect(chicago.descendants).to be_empty
       end
     end
   end
 
   describe "root scope" do
     it "returns only root nodes" do
-      Location.root.should include(usa, canada)
+      expect(Location.root).to include(usa, canada)
     end
   end
 
@@ -144,8 +144,8 @@ describe "Edge::Forest" do
       Location.where("purposely fail if any Location find happens here").scoping do
         forest.each do |tree|
           tree.descendants.each do |node|
-            node.parent.should be
-            node.children.should be_kind_of(ActiveRecord::Associations::CollectionProxy)
+            expect(node.parent).to be
+            expect(node.children).to be_kind_of(ActiveRecord::Associations::CollectionProxy)
           end
         end
       end
@@ -153,14 +153,14 @@ describe "Edge::Forest" do
 
     it "works when scoped" do
       forest = Location.where(:name => "USA").find_forest
-      forest.should include(usa)
+      expect(forest).to include(usa)
     end
 
     it "preloads children in proper order" do
       alabama = Location.create! :parent => usa, :name => "Alabama"
       forest = Location.find_forest
       tree = forest.find { |l| l.id == usa.id }
-      tree.children.should == [alabama, illinois, indiana]
+      expect(tree.children).to eq [alabama, illinois, indiana]
     end
 
     context "with an infinite loop" do
@@ -177,12 +177,12 @@ describe "Edge::Forest" do
   describe "find_tree" do
     it "finds by id" do
       tree = Location.find_tree usa.id
-      tree.should == usa
+      expect(tree).to eq usa
     end
 
     it "finds multiple trees by id" do
       trees = Location.find_tree [indiana.id, illinois.id]
-      trees.should include(indiana, illinois)
+      expect(trees).to include(indiana, illinois)
     end
 
     it "raises ActiveRecord::RecordNotFound when id is not found" do
@@ -198,17 +198,20 @@ describe "Edge::Forest" do
   describe "with_descendants" do
     context "unscoped" do
       it "returns all records" do
-        Location.with_descendants.to_a.should =~ Location.all
+        rows = Location.with_descendants.to_a
+        expect(rows).to match_array Location.all
       end
     end
 
     context "scoped" do
       it "returns a new scope that includes previously scoped records and their descendants" do
-        Location.where(id: canada.id).with_descendants.to_a.should =~ [canada, british_columbia]
+        rows = Location.where(id: canada.id).with_descendants.to_a
+        expect(rows).to match_array [canada, british_columbia]
       end
 
       it "is not commutative" do
-        Location.with_descendants.where(id: canada.id).to_a.should == [canada]
+        rows = Location.with_descendants.where(id: canada.id).to_a
+        expect(rows).to eq [canada]
       end
     end
   end
