@@ -50,7 +50,8 @@ module Edge
         manager = recursive_manager.project(Arel.star)
         manager.order(forest_order) if forest_order
 
-        records = find_by_sql manager.to_sql
+        bind_values = current_scope ? current_scope.bind_values : []
+        records = find_by_sql manager.to_sql, bind_values
 
         records_by_id = records.each_with_object({}) { |r, h| h[r.id] = r }
 
@@ -95,7 +96,9 @@ module Edge
       # Only where scopes can precede this in a scope chain
       def with_descendants
         manager = recursive_manager.project(arel_table[:id])
-        unscoped.where("#{table_name}.id in (#{manager.to_sql})")
+        scope = unscoped.where("#{table_name}.id in (#{manager.to_sql})")
+        scope.bind_values = current_scope.bind_values if current_scope
+        scope
       end
 
       private
