@@ -218,10 +218,11 @@ describe "Edge::Forest" do
 
   describe "self.acts_as_forest" do
     it 'can be used twice' do
-      Location2 = Class.new(ActiveRecord::Base) do
+      class Location2 < ActiveRecord::Base
         self.table_name = 'locations'
         acts_as_forest :order => "name"
       end
+
       Location2.find_forest
     end
   end

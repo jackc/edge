@@ -16,7 +16,7 @@ module Edge
         self.forest_order = options[:order] || nil
 
         common_options = {
-          :class_name => self,
+          :class_name => self.name,
           :foreign_key => forest_foreign_key
         }
 
