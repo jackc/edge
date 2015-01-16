@@ -1,5 +1,6 @@
 # Unreleased
 
+* Include rake as development dependency
 * Fix for not passing string to belongs_to class_name (davekaro)
 
 # 0.4.0 (December 23, 2014)

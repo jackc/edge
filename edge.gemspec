@@ -19,6 +19,7 @@ Gem::Specification.new do |gem|
 
   gem.add_development_dependency 'pg'
   gem.add_development_dependency 'pry'
+  gem.add_development_dependency 'rake'
   gem.add_development_dependency 'rspec', "~> 3.1.0"
   gem.add_development_dependency 'guard', ">= 0.10.0"
   gem.add_development_dependency 'guard-rspec', ">= 0.6.0"
