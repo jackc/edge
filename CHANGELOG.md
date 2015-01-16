@@ -1,3 +1,7 @@
+# Unreleased
+
+* Fix for not passing string to belongs_to class_name (davekaro)
+
 # 0.4.0 (December 23, 2014)
 
 * Fix failure with bind_values
