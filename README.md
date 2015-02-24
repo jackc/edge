@@ -50,6 +50,11 @@ must not be used after any other type of scope.
 
     Location.where(name: "Illinois").with_descendants.all # [illinois, chicago]
 
+Also supported is `ancestors` instance method which returns an array of all ancestors ordered by nearest ancestors first.
+    
+    city = Location.where(name: 'Chicago')
+    ancestors = city.ancestors # [illinois, usa]
+
 ## Benchmarks
 
 Edge includes a performance benchmarks. You can create test forests with a
