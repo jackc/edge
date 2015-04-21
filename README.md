@@ -1,5 +1,7 @@
 # Edge
 
+[![Build Status](https://travis-ci.org/jackc/edge.svg?branch=master)](https://travis-ci.org/jackc/edge)
+
 Edge provides graph functionality to ActiveRecord using recursive common table
 expressions. It has only been tested with PostgreSQL, but it uses Arel for
 SQL generation so it should work with any database and adapter that support
@@ -51,7 +53,7 @@ must not be used after any other type of scope.
     Location.where(name: "Illinois").with_descendants.all # [illinois, chicago]
 
 Also supported is `ancestors` instance method which returns an array of all ancestors ordered by nearest ancestors first.
-    
+
     city = Location.where(name: 'Chicago')
     ancestors = city.ancestors # [illinois, usa]
 

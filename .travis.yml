@@ -1,0 +1,17 @@
+language: ruby
+rvm:
+  - 2.2.0
+  - 2.1.5
+  - 2.0.0
+gemfile:
+  - gemfiles/3.2.gemfile
+  - gemfiles/4.0.gemfile
+  - gemfiles/4.1.gemfile
+  - gemfiles/4.2.gemfile
+
+addons:
+  postgresql: "9.2"
+
+before_script:
+  - cp spec/database.yml.travis spec/database.yml
+  - bundle exec rake db:setup
