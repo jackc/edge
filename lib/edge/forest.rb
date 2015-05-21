@@ -96,7 +96,7 @@ module Edge
       # Only where scopes can precede this in a scope chain
       def with_descendants
         manager = recursive_manager.project(arel_table[:id])
-        scope = unscoped.where("#{table_name}.id in (#{manager.to_sql})")
+        scope = unscoped.where(arel_table[:id].in manager)
         scope.bind_values = current_scope.bind_values if current_scope
         scope
       end
