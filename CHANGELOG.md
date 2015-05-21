@@ -1,3 +1,9 @@
+# 0.4.2 (May 21, 2015)
+
+* Fixed premature SQL-ization that could result in PG protocol violation errors (Neil E. Pearson)
+* Require Rails 4.0+
+* Document ancestors method (science)
+
 # 0.4.1 (January 15, 2015)
 
 * Include rake as development dependency
