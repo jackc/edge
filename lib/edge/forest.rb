@@ -28,7 +28,6 @@ module Edge
           has_many :children, common_options.merge(inverse_of: :parent)
         end
 
-
         scope :root, -> { where(forest_foreign_key => nil) }
 
         include Edge::Forest::InstanceMethods
@@ -116,7 +115,7 @@ module Edge
 
         as_statement = Arel::Nodes::As.new all_nodes, union
 
-        manager = Arel::SelectManager.new(Arel::Table.engine)
+        Arel::SelectManager.new(Arel::Table.engine)
           .with(:recursive, as_statement)
           .from(all_nodes)
           .join(arel_table)
