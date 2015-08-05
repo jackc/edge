@@ -132,7 +132,7 @@ module Edge
 
       # Returns true is this node is a root or false otherwise
       def root?
-        !parent_id
+        !self[forest_foreign_key]
       end
 
       # Returns all sibling nodes (nodes that have the same parent). If this
