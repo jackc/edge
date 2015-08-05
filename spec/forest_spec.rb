@@ -11,6 +11,7 @@ end
 Location.delete_all
 
 describe "Edge::Forest" do
+  let(:skeleton) { BodyPart.create! }
   let!(:usa) { Location.create! :name => "USA" }
   let!(:illinois) { Location.create! :parent => usa, :name => "Illinois" }
   let!(:chicago) { Location.create! :parent => illinois, :name => "Chicago" }
@@ -22,6 +23,12 @@ describe "Edge::Forest" do
     context "of root node" do
       it "should be true" do
         expect(usa.root?).to eq true
+      end
+    end
+
+    context "of model with custom foreign key" do
+      it "should be true" do
+        expect(skeleton.root?).to eq true
       end
     end
 
