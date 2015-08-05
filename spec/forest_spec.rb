@@ -4,6 +4,10 @@ class Location < ActiveRecord::Base
   acts_as_forest :order => "name"
 end
 
+class BodyPart < ActiveRecord::Base
+  acts_as_forest :foreign_key => "body_part_id"
+end
+
 Location.delete_all
 
 describe "Edge::Forest" do
