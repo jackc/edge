@@ -4,6 +4,7 @@ module Edge
     module ActsAsForest
       # options:
       #
+      # * dependent - passed to children has_many (default: none)
       # * foreign_key - column name to use for parent foreign_key (default: parent_id)
       # * order - how to order children (default: none)
       def acts_as_forest(options={})

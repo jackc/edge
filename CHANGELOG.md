@@ -1,3 +1,7 @@
+# Master
+
+* Allow dependent option to acts_as_forest (WANG QUANG)
+
 # 0.4.2 (May 21, 2015)
 
 * Fixed premature SQL-ization that could result in PG protocol violation errors (Neil E. Pearson)

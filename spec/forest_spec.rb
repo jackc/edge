@@ -237,4 +237,24 @@ describe "Edge::Forest" do
       Location2.find_forest
     end
   end
+
+  describe "dependent destroy" do
+    it 'cascades destroys' do
+      class Location3 < ActiveRecord::Base
+        self.table_name = 'locations'
+        acts_as_forest dependent: :destroy
+      end
+
+      Location3.find(usa.id).destroy
+
+      expect(Location.exists?(usa.id)).to eq false
+      expect(Location.exists?(illinois.id)).to eq false
+      expect(Location.exists?(chicago.id)).to eq false
+      expect(Location.exists?(indiana.id)).to eq false
+
+      expect(Location.exists?(canada.id)).to eq true
+      expect(Location.exists?(british_columbia.id)).to eq true
+    end
+
+  end
 end
