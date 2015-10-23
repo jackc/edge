@@ -1,4 +1,4 @@
-# Master
+# 0.4.3 (October 23, 2015)
 
 * Allow dependent option to acts_as_forest (WANG QUANG)
 
