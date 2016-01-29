@@ -1,3 +1,7 @@
+# 0.4.4 (January 29, 2016)
+
+* Fix JRuby compatibility (jackc)
+
 # 0.4.3 (October 23, 2015)
 
 * Allow dependent option to acts_as_forest (WANG QUANG)
