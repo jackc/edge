@@ -53,7 +53,18 @@ module Edge
         manager.order(forest_order) if forest_order
 
         bind_values = current_scope ? current_scope.bind_values : []
-        records = find_by_sql manager.to_sql, bind_values
+
+        # This is a nasty hack to work around
+        # https://github.com/jackc/edge/issues/14 The MRI pg gem and the JRuby
+        # activerecord-jdbcpostgresql-adapter gem bind values into the prepared
+        # statement at different times. If the binds are still '?' then the bind
+        # isn't processed yet. But if it is '$1', '$2', etc. then is has been
+        # processed. This determines how we pass the values to find_by_sql.
+        records = if connection.respond_to? :jdbc_connection_class
+          find_by_sql [manager.to_sql, bind_values.map(&:last)]
+        else
+          find_by_sql manager.to_sql, bind_values
+        end
 
         records_by_id = records.each_with_object({}) { |r, h| h[r.id] = r }
 
