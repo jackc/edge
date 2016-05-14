@@ -1,6 +1,7 @@
 # 0.5.0 (May 14, 2016)
 
-* Test Rails 5 compatibility
+* Add Rails 5.0 support
+* Drop Rails 4.0 support
 * Replace using internal arel with SQL string building
 
 # 0.4.4 (January 29, 2016)
