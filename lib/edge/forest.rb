@@ -49,22 +49,14 @@ module Edge
       #    # loads all nodes with matching names and all there descendants
       #    Category.where(:name => %w{clothing books electronics}).find_forest
       def find_forest
-        manager = recursive_manager.project(Arel.star)
-        manager.order(forest_order) if forest_order
+        new_scope = unscoped.joins("INNER JOIN all_nodes USING(#{connection.quote_column_name primary_key})")
+        new_scope = new_scope.order(forest_order) if forest_order
 
-        bind_values = current_scope ? current_scope.bind_values : []
-
-        # This is a nasty hack to work around
-        # https://github.com/jackc/edge/issues/14 The MRI pg gem and the JRuby
-        # activerecord-jdbcpostgresql-adapter gem bind values into the prepared
-        # statement at different times. If the binds are still '?' then the bind
-        # isn't processed yet. But if it is '$1', '$2', etc. then is has been
-        # processed. This determines how we pass the values to find_by_sql.
-        records = if connection.respond_to? :jdbc_connection_class
-          find_by_sql [manager.to_sql, bind_values.map(&:last)]
-        else
-          find_by_sql manager.to_sql, bind_values
-        end
+        sql = <<-SQL
+          #{cte_sql}
+          #{new_scope.to_sql}
+        SQL
+        records = find_by_sql sql
 
         records_by_id = records.each_with_object({}) { |r, h| h[r.id] = r }
 
@@ -108,32 +100,33 @@ module Edge
       #
       # Only where scopes can precede this in a scope chain
       def with_descendants
-        manager = recursive_manager.project(arel_table[:id])
-        scope = unscoped.where(arel_table[:id].in manager)
-        scope.bind_values = current_scope.bind_values if current_scope
-        scope
+        subquery_scope = unscoped
+          .joins("INNER JOIN all_nodes USING(#{connection.quote_column_name primary_key})")
+          .select(primary_key)
+
+        subquery_sql = <<-SQL
+          #{cte_sql}
+          #{subquery_scope.to_sql}
+        SQL
+
+        unscoped.where <<-SQL
+          #{connection.quote_column_name primary_key} IN (#{subquery_sql})
+        SQL
       end
 
       private
-      def recursive_manager
-        all_nodes = Arel::Table.new(:all_nodes)
-
-        original_term = (current_scope || all).select(primary_key, forest_foreign_key).arel
-        iterated_term = Arel::SelectManager.new Arel::Table.engine
-        iterated_term.from(arel_table)
-          .project([arel_table[primary_key.to_sym], arel_table[forest_foreign_key.to_sym]])
-          .join(all_nodes)
-          .on(arel_table[forest_foreign_key].eq all_nodes[:id])
-
-        union = original_term.union(iterated_term)
-
-        as_statement = Arel::Nodes::As.new all_nodes, union
-
-        Arel::SelectManager.new(Arel::Table.engine)
-          .with(:recursive, as_statement)
-          .from(all_nodes)
-          .join(arel_table)
-          .on(all_nodes[:id].eq(arel_table[:id]))
+      def cte_sql
+        quoted_table_name = '"locations"'
+        original_scope = (current_scope || all).select(primary_key, forest_foreign_key)
+        iterated_scope = unscoped.select(primary_key, forest_foreign_key)
+          .joins("INNER JOIN all_nodes ON #{connection.quote_column_name table_name}.#{connection.quote_column_name forest_foreign_key}=all_nodes.#{connection.quote_column_name primary_key}")
+        <<-SQL
+          WITH RECURSIVE all_nodes AS (
+            #{original_scope.to_sql}
+            UNION
+            #{iterated_scope.to_sql}
+          )
+        SQL
       end
     end
 

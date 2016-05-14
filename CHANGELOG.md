@@ -1,3 +1,8 @@
+# 0.5.0 (May 14, 2016)
+
+* Test Rails 5 compatibility
+* Replace using internal arel with SQL string building
+
 # 0.4.4 (January 29, 2016)
 
 * Fix JRuby compatibility (jackc)
