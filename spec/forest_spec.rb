@@ -164,7 +164,8 @@ describe "Edge::Forest" do
 
     it "works when scoped" do
       forest = Location.where(:name => "USA").find_forest
-      expect(forest).to include(usa)
+      expect(forest).to match_array([usa])
+      expect(forest.first.children).to match_array([illinois, indiana])
     end
 
     it "preloads children in proper order" do
