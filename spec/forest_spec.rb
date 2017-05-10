@@ -258,4 +258,26 @@ describe "Edge::Forest" do
     end
 
   end
+
+  if ActiveRecord::VERSION::MAJOR >= 5
+    describe "optional option" do
+      before do
+        @original_value = ActiveRecord::Base.belongs_to_required_by_default
+        ActiveRecord::Base.belongs_to_required_by_default = true
+      end
+
+      after do
+        ActiveRecord::Base.belongs_to_required_by_default = @original_value
+      end
+
+      it 'parent can be nil' do
+        class Location4 < ActiveRecord::Base
+          self.table_name = "locations"
+          acts_as_forest optional: true
+        end
+
+        expect(Location4.new(name: "Iceland").valid?).to eq true
+      end
+    end
+  end
 end
