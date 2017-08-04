@@ -1,3 +1,7 @@
+# 0.5.1 (August 4, 2017)
+
+* Allow use of 'optional' option for belongs_to (Yuji Yaginuma)
+
 # 0.5.0 (May 14, 2016)
 
 * Add Rails 5.0 support
