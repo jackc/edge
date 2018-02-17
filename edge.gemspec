@@ -15,7 +15,7 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.version       = Edge::VERSION
 
-  gem.add_dependency 'activerecord', "~> 4.2.10"
+  gem.add_dependency 'activerecord', "> 4.2.10"
 
   gem.add_development_dependency 'pg', "~> 0.21"
   gem.add_development_dependency 'pry'
