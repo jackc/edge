@@ -15,7 +15,7 @@ module Edge
         self.forest_foreign_key = options[:foreign_key] || "parent_id"
 
         class_attribute :forest_order
-        self.forest_order = options[:order] || nil
+        self.forest_order = Arel.sql(options[:order]) if options[:order]
 
         common_options = {
           :class_name => self.name,
