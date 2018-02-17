@@ -3,8 +3,6 @@ require 'yaml'
 
 require 'rspec'
 
-require 'pg'
-
 database_config = YAML.load_file(File.expand_path("../database.yml", __FILE__))
 ActiveRecord::Base.establish_connection database_config["test"]
 

@@ -17,7 +17,7 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency 'activerecord', "~> 4.2.10"
 
-  gem.add_development_dependency 'pg'
+  gem.add_development_dependency 'pg', "~> 0.21"
   gem.add_development_dependency 'pry'
   gem.add_development_dependency 'rake'
   gem.add_development_dependency 'rspec', "~> 3.6.0"
