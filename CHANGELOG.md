@@ -1,3 +1,8 @@
+# 0.6.0 (December 13, 2018)
+
+* Fix usage when table name includes schema
+* Drop Rails 4.x support
+
 # 0.5.1 (August 4, 2017)
 
 * Allow use of 'optional' option for belongs_to (Yuji Yaginuma)
