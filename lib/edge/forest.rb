@@ -122,7 +122,7 @@ module Edge
         quoted_table_name = '"locations"'
         original_scope = (current_scope || all).select(primary_key, forest_foreign_key)
         iterated_scope = unscoped.select(primary_key, forest_foreign_key)
-          .joins("INNER JOIN all_nodes ON #{connection.quote_column_name table_name}.#{connection.quote_column_name forest_foreign_key}=all_nodes.#{connection.quote_column_name primary_key}")
+          .joins("INNER JOIN all_nodes ON #{connection.quote_table_name table_name}.#{connection.quote_column_name forest_foreign_key}=all_nodes.#{connection.quote_column_name primary_key}")
         <<-SQL
           WITH RECURSIVE all_nodes AS (
             #{original_scope.to_sql}
