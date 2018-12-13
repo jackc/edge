@@ -24,7 +24,7 @@ module Edge
 
         dependent_options = options[:dependent] ? { dependent: options[:dependent] } : {}
 
-        optional_options = (ActiveRecord::VERSION::MAJOR >= 5 && options[:optional]) ? { optional: options[:optional] } : {}
+        optional_options = options[:optional] ? { optional: options[:optional] } : {}
 
         belongs_to :parent, common_options.merge(inverse_of: :children).merge(optional_options)
 
