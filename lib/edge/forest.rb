@@ -26,12 +26,12 @@ module Edge
 
         optional_options = options[:optional] ? { optional: options[:optional] } : {}
 
-        belongs_to :parent, common_options.merge(inverse_of: :children).merge(optional_options)
+        belongs_to :parent, **common_options.merge(inverse_of: :children).merge(optional_options)
 
         if forest_order
-          has_many :children, -> { order(forest_order) }, common_options.merge(inverse_of: :parent).merge(dependent_options)
+          has_many :children, -> { order(forest_order) }, **common_options.merge(inverse_of: :parent).merge(dependent_options)
         else
-          has_many :children, common_options.merge(inverse_of: :parent).merge(dependent_options)
+          has_many :children, **common_options.merge(inverse_of: :parent).merge(dependent_options)
         end
 
         scope :root, -> { where(forest_foreign_key => nil) }
