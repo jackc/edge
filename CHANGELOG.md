@@ -1,3 +1,7 @@
+# 0.6.1 (February 20, 2021)
+
+* Add Ruby 3 compatibility (Martins Polakovs)
+
 # 0.6.0 (December 13, 2018)
 
 * Fix usage when table name includes schema
